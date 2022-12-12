@@ -54,23 +54,20 @@ int main(int argc, char **argv) {
 	addrtostr(addr, addrstr, BUFSZ);
 	printf("connected to %s\n", addrstr);
 
+	// PLUG SEND MSG - Pega a mensagem do teclado e envia para o endereco
+	char buf[BUFSZ];
+	memset(buf, 0, BUFSZ);
+	// fgets(buf, BUFSZ-1, stdin);
+
+	//Mandar REQ_ID
+	strcpy(buf, "REQ_ID");
+	ssize_t count = sendto(s, buf, strlen(buf), 0, addr, addr_len);
+	if (count != strlen(buf)) {
+		logexit("erro ao enviar mensagem com sendto");
+	}
+
 	// Entra em loop para enviar/receber mensagens
-	while (1)
-	{
-		// PLUG SEND MSG - Pega a mensagem do teclado e envia para o endereco
-		printf("entrou\n");
-		char buf[BUFSZ];
-		memset(buf, 0, BUFSZ);
-		// fgets(buf, BUFSZ-1, stdin);
-
-		//Mandar REQ_ID
-		strcpy(buf, "REQ_ID");
-		ssize_t count = sendto(s, buf, strlen(buf), 0, addr, addr_len);
-		if (count != strlen(buf)) {
-			logexit("erro ao enviar mensagem com sendto");
-		}
-		printf("enviou\n");
-
+	while (1){
 		// PLUG RECV MSG - recebe mensagem do servidor e guarda em buf
 		memset(buf, 0, BUFSZ);
 		count = recvfrom(s, buf, BUFSZ, 0, addr, &addr_len);
@@ -79,10 +76,6 @@ int main(int argc, char **argv) {
         }
 		printf("recebida> ");
 		puts(buf);
-
-		char pausa[BUFSZ];
-		memset(pausa, 0, BUFSZ);
-		fgets(pausa, BUFSZ-1, stdin);
 	}
 	
 	//Fecha o socket

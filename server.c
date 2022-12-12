@@ -65,6 +65,8 @@ int main(int argc, char **argv) {
         dispositivos[i] = NULL;
     }
 
+  
+
     // ----- TROCA DE MENSAGENS -----//
     while (1) {
         //Define socket do cliente
@@ -78,6 +80,8 @@ int main(int argc, char **argv) {
         
         //O endereco do cliente que enviou a msg eh salvo em client_addr
         ssize_t count = recvfrom(s, buf, sizeof(buf), 0, client_addr, &client_addrlen);
+        printf("client_addr: %p\n", client_addr);
+
         if(count < 0){
             logexit("erro ao receber mensagem do cliente");
         }
@@ -94,7 +98,8 @@ int main(int argc, char **argv) {
             int disp_id;
             for(int i = 0; i < MAX_DISPOSITIVOS; i++){
                 if(dispositivos[i] == NULL){
-                    dispositivos[i] = client_addr;
+                    dispositivos[i] = malloc(sizeof(struct sockaddr*));
+                    *dispositivos[i] = *client_addr;
                     disp_id = i;
                     break;
                 }
@@ -124,17 +129,16 @@ int main(int argc, char **argv) {
                         logexit("erro ao enviar mensagem de volta com sendto");
                     }
                 }
-            }
+            }   
         }
 
         //PLUG RECV MSG - so imprime a mensagem recebida    
         // Nao e necessario estabelecer um socket para o cliente, passa-se o endereco direto que esta salvo em client_addr
         // Envia mensagem de volta para o cliente a partir de seu endereco client_addr
-        count = sendto(s, buf, strlen(buf), 0, client_addr, client_addrlen);
-        if (count != strlen(buf)) {
-        logexit("erro ao enviar mensagem de volta com sendto");
-        }
-        
+        // count = sendto(s, buf, strlen(buf), 0, client_addr, client_addrlen);
+        // if (count != strlen(buf)) {
+        // logexit("erro ao enviar mensagem de volta com sendto");
+        // }
     }
         
     exit(EXIT_SUCCESS);
