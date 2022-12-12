@@ -71,3 +71,11 @@ int server_sockaddr_init(const char *portstr,
     return 0;
 
 }
+
+enum MSG_TYPE {REQ_ID = 1};
+unsigned parse_msg_type(const char *msg_type_in){
+    if(!strcmp(msg_type_in, "REQ_ID"))
+        return REQ_ID; 
+    else 
+        return 0;
+}

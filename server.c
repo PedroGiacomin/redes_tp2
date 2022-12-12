@@ -9,6 +9,8 @@
 #include <sys/types.h>
 
 #define BUFSZ 1024
+#define STR_MIN 8
+#define MAX_DISPOSITIVOS 3
 
 void usage(int argc, char **argv) {
     printf("usage: %s <server port>\n", argv[0]);
@@ -54,11 +56,17 @@ int main(int argc, char **argv) {
     addrtostr(addr, addrstr, BUFSZ);
     printf("bound to %s, waiting connections\n", addrstr);
 
-    char *id_str = "ID";
+    // ----- LOGICA DE IDS -----//
+    //Todos os dispositivo que se conectam tem seu endereco (no formato sockaddr*) salvo num vetor
+    //O vetor eh inicializado todo com NULL quando o servidor eh inicializado
+    //A posicao do vetor eh o id do dispositivo
+    struct sockaddr *dispositivos[MAX_DISPOSITIVOS];
+    for (int i = 0; i < MAX_DISPOSITIVOS; i++){
+        dispositivos[i] = NULL;
+    }
 
     // ----- TROCA DE MENSAGENS -----//
     while (1) {
-
         //Define socket do cliente
         struct sockaddr_storage client_storage;
         struct sockaddr *client_addr = (struct sockaddr *)(&client_storage);
@@ -67,7 +75,8 @@ int main(int argc, char **argv) {
         //Espera receber mensagem do cliente e salva em buf. Fica bloqueado ate receber msg.
         char buf[BUFSZ];
         memset(buf, 0, BUFSZ);
-
+        
+        //O endereco do cliente que enviou a msg eh salvo em client_addr
         ssize_t count = recvfrom(s, buf, sizeof(buf), 0, client_addr, &client_addrlen);
         if(count < 0){
             logexit("erro ao receber mensagem do cliente");
@@ -76,25 +85,56 @@ int main(int argc, char **argv) {
         addrtostr(client_addr, client_addrstr, BUFSZ);
         
         //PLUG RECV MSG - so imprime a mensagem recebida
-        printf("recebida> de %s: %s\n", client_addrstr, buf); 
-    
-        
-        // Nao e necessario estabelecer um socket para o cliente, passa-se o endereco direto
-        // Envia mensagem de volta para o cliente a partir de seu endereco client_addr
+        printf("recebida de %s> %s\n", client_addrstr, buf); 
+        char *token = strtok(buf, " "); //token = type
+        unsigned msg_type = parse_msg_type(token); //salva o tipo da mensagem
 
-        //PLUG SEND MSG - So envia a mensagem recebida de volta
-        if (strcmp(buf,"REQ_ID") == 0){
-            count = sendto(s, id_str, strlen(id_str), 0, client_addr, client_addrlen);
-            if (count != strlen(id_str)) {
-            logexit("erro ao enviar mensagem de volta com sendto");
+        if(msg_type == REQ_ID){
+            //Encontra a primeira posicao vazia no vetor de dispositivos e atribui o dispositivo que acabou de chegar a ela
+            int disp_id;
+            for(int i = 0; i < MAX_DISPOSITIVOS; i++){
+                if(dispositivos[i] == NULL){
+                    dispositivos[i] = client_addr;
+                    disp_id = i;
+                    break;
+                }
+            }
+
+            char disp_addrstr[BUFSZ];
+            addrtostr(dispositivos[disp_id], disp_addrstr, BUFSZ);
+            printf("cadastrado %s\n", disp_addrstr); 
+
+            printf("Enderecos gravados:\n");
+            for(int i = 0; i < MAX_DISPOSITIVOS; i++){
+                printf("dispositivos[i]: %p\n", dispositivos[i]);
+            }
+
+            //Manda mensagem RES_ID <id> para todos os clientes cadastrados (!= NULL)
+            memset(buf, 0, BUFSZ);
+            char *str_id = malloc(STR_MIN);
+            sprintf(str_id, "%02d", disp_id); //parse int->string
+            strcpy(buf, "RES_ID ");
+            strcat(buf, str_id);
+
+            for(int i = 0; i < MAX_DISPOSITIVOS; i++){
+                if(dispositivos[i] != NULL){
+                    socklen_t disp_len = sizeof(struct sockaddr_storage);
+                    count = sendto(s, buf, strlen(buf), 0, dispositivos[i], disp_len);
+                    if (count != strlen(buf)) {
+                        logexit("erro ao enviar mensagem de volta com sendto");
+                    }
+                }
             }
         }
-        else{
-            count = sendto(s, buf, strlen(buf), 0, client_addr, client_addrlen);
-            if (count != strlen(buf)) {
-            logexit("erro ao enviar mensagem de volta com sendto");
-            }
+
+        //PLUG RECV MSG - so imprime a mensagem recebida    
+        // Nao e necessario estabelecer um socket para o cliente, passa-se o endereco direto que esta salvo em client_addr
+        // Envia mensagem de volta para o cliente a partir de seu endereco client_addr
+        count = sendto(s, buf, strlen(buf), 0, client_addr, client_addrlen);
+        if (count != strlen(buf)) {
+        logexit("erro ao enviar mensagem de volta com sendto");
         }
+        
     }
         
     exit(EXIT_SUCCESS);
