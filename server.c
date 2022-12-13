@@ -18,6 +18,30 @@ void usage(int argc, char **argv) {
     exit(EXIT_FAILURE);
 }
 
+//Funcoes pra construir mensagens de controle ERROR e OK ja em formato de string, fornecendo apenas o codigo
+void build_error_msg(char *msg_out, unsigned codigo){
+    
+    //parse int->str
+    char *code_aux = malloc(sizeof(STR_MIN));
+    sprintf(code_aux, "%02u", codigo);
+
+    strcpy(msg_out, "ERROR ");
+    strcat(msg_out, code_aux);
+
+    free(code_aux);
+}
+void build_ok_msg(char *msg_out, unsigned codigo){
+    
+    //parse int->str
+    char *code_aux = malloc(sizeof(STR_MIN));
+    sprintf(code_aux, "%02u", codigo);
+
+    strcpy(msg_out, "OK ");
+    strcat(msg_out, code_aux);
+
+    free(code_aux);
+}
+
 void broadcast(struct sockaddr *dispositivos[], int s, char *msg){
     for(int i = 0; i < MAX_DISPOSITIVOS; i++){
         if(dispositivos[i] != NULL){
@@ -100,6 +124,7 @@ int main(int argc, char **argv) {
         unsigned msg_type = parse_msg_type(token); //salva o tipo da mensagem
 
         int disp_id;
+        int num_disp = 0;
         switch (msg_type){
             case REQ_ID:
                 //Encontra a primeira posicao vazia no vetor de dispositivos e atribui o dispositivo que acabou de chegar a ela
@@ -110,6 +135,18 @@ int main(int argc, char **argv) {
                         disp_id = i;
                         break;
                     }
+                    num_disp++;
+                }
+                
+                //Checa se todas as posicoes estao livres
+                if(num_disp == MAX_DISPOSITIVOS){
+                    memset(buf, 0, BUFSZ);
+                    build_error_msg(buf, 1);
+                    int count = sendto(s, buf, strlen(buf), 0, client_addr, client_addrlen);
+                    if (count != strlen(buf)) {
+                        logexit("erro ao enviar mensagem de volta com sendto");
+                    }
+                    break;
                 }
 
                 //Manda mensagem BROAD_ADD <id> para todos os clientes cadastrados (!= NULL), por meio da funcao brodcast()
@@ -157,6 +194,7 @@ int main(int argc, char **argv) {
                 printf("Device %s removed\n", str_id);
 
                 dispositivos[disp_id] = NULL;  //tira o registro do dispositivo do vetor dispositivos[]
+                num_disp--;
                 break;
 
             default:

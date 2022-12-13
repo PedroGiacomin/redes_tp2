@@ -124,7 +124,7 @@ int main(int argc, char **argv) {
 	send_data->server_sock = s;
 	send_data->server_addr = addr;
 	send_data->server_addrlen = addr_len;
-	//send_data->aux_id = id;
+
 	if(0 != pthread_create(&thread_comando, NULL, get_command, send_data)){
 		logexit("erro ao fazer thread");
 	}
@@ -138,8 +138,8 @@ int main(int argc, char **argv) {
             logexit("erro ao receber mensagem do cliente");
         }
 		
-		// printf("recebida> ");
-		// puts(buf);
+		printf("recebida> ");
+		puts(buf);
 
 		char *token = strtok(buf, " "); //token = type
         unsigned msg_type = parse_msg_type(token); //salva o tipo da mensagem
@@ -183,6 +183,24 @@ int main(int argc, char **argv) {
 					int dev_id = atoi(token);
 					dispositivos_id[dev_id] = dev_id; //na posicao dev_id, o dispositivo de id dev_id eh instalado
 				}
+				break;
+			
+			case ERROR:
+				token = strtok(NULL, " "); //token = dev_id a ser deletado
+				int code = atoi(token);
+				switch (code){
+					case 1:
+						printf("Device limit exceeded\n");
+						
+						//Fecha o socket
+						close(s);
+						exit(EXIT_SUCCESS);
+						break;
+				
+					default:
+						break;
+				}
+
 				break;
 
 			default:
