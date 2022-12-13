@@ -8,10 +8,10 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <arpa/inet.h>
+#include <pthread.h>
 
 #define BUFSZ 1024
 #define ID_HOLD 9999
-#define MAX_DISPOSITIVOS 3
 #define STR_MIN 8
 
 // ----- ATRIBUTOS DE DISPOSITIVO (globais) -----//
@@ -138,8 +138,8 @@ int main(int argc, char **argv) {
             logexit("erro ao receber mensagem do cliente");
         }
 		
-		printf("recebida> ");
-		puts(buf);
+		// printf("recebida> ");
+		// puts(buf);
 
 		char *token = strtok(buf, " "); //token = type
         unsigned msg_type = parse_msg_type(token); //salva o tipo da mensagem

@@ -3,6 +3,7 @@
 #include <stdlib.h>
 
 #include <arpa/inet.h>
+#define MAX_DISPOSITIVOS 15
 
 void logexit(const char *msg);
 

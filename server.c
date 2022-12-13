@@ -10,7 +10,7 @@
 
 #define BUFSZ 1024
 #define STR_MIN 8
-#define MAX_DISPOSITIVOS 3
+
 
 void usage(int argc, char **argv) {
     printf("usage: %s <server port>\n", argv[0]);
