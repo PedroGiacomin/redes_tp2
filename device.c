@@ -14,8 +14,9 @@
 #define MAX_DISPOSITIVOS 3
 #define STR_MIN 8
 
-//ID do dispositivo eh global
+// ----- ATRIBUTOS DE DISPOSITIVO (globais) -----//
 int dev_id = ID_HOLD;
+int dispositivos_id[MAX_DISPOSITIVOS];
 
 void usage(int argc, char **argv) {
 	printf("usage: %s <server IP> <server port>\n", argv[0]);
@@ -33,12 +34,23 @@ void process_command(char *str_in, char *str_out){
 	char buf[BUFSZ];
 	memset(buf, 0, BUFSZ);
 	if(!strcmp(str_in, "close connection\n")){
-
 		char *str_id = malloc(STR_MIN);
         sprintf(str_id, "%02d", dev_id); //parse int->string
 		strcpy(buf, "REQ_DEL ");
 		strcat(buf, str_id);
 		strcpy(str_out, buf); //retorna o comando que foi recebido
+	}
+	else if(!strcmp(str_in, "list device\n")){
+		strcpy(buf, "");
+		char *str_id = malloc(STR_MIN);
+
+		for(int i = 0; i < MAX_DISPOSITIVOS; i++){
+			if(dispositivos_id[i] != ID_HOLD){
+        		sprintf(str_id, "%02d ", i); //parse int->string
+				strcat(buf, str_id);
+			}
+		}
+		printf("%s\n", buf);	
 	}
 }
 
@@ -64,12 +76,13 @@ void *get_command(void *data){
 // argv[1] = IP do servidor
 // argv[2] = porta
 int main(int argc, char **argv) {
-	// ----- ATRIBUTOS DE DISPOSITIVO -----//
-	
-	//int dispositivos[MAX_DISPOSITIVOS];
-	
 	if (argc < 3) {
 		usage(argc, argv);
+	}
+
+	//inicializa o vetor de dispositivos, ID_HOLD indica que o id nao estah na base de dados do dispositivo 
+	for(int i = 0; i < MAX_DISPOSITIVOS; i++){
+		dispositivos_id[i] = ID_HOLD;
 	}
 
 	// ----- DEFINICAO E CRIACAO DO SOCKET ----- // 
@@ -142,6 +155,7 @@ int main(int argc, char **argv) {
 				} 
 				else{
 					//se o id ja tiver sido inicializado
+					dispositivos_id[atoi(token)] = atoi(token);
 					printf("Device %s added\n", token);
 				}
 				break;
@@ -156,6 +170,16 @@ int main(int argc, char **argv) {
 				else{
 					printf("Device %s removed\n", token);
 				}
+				break;
+			
+			case LIST_DEV:
+				//recebe LIST_DEV <id1> <id2> ...  e deve adicionar todos os ids no vetor int dispositivos_id
+				while((token = strtok(NULL, " ")) != NULL){
+					//token = dev_id
+					int dev_id = atoi(token);
+					dispositivos_id[dev_id] = dev_id; //na posicao dev_id, o dispositivo de id dev_id eh instalado
+				}
+				break;
 
 			default:
 				break;
