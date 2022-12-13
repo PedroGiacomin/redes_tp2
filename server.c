@@ -90,7 +90,6 @@ int main(int argc, char **argv) {
         
         //O endereco do cliente que enviou a msg eh salvo em client_addr
         ssize_t count = recvfrom(s, buf, sizeof(buf), 0, client_addr, &client_addrlen);
-        printf("client_addr: %p\n", client_addr);
 
         if(count < 0){
             logexit("erro ao receber mensagem do cliente");

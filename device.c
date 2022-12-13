@@ -12,6 +12,10 @@
 #define BUFSZ 1024
 #define ID_HOLD 9999
 #define MAX_DISPOSITIVOS 3
+#define STR_MIN 8
+
+//ID do dispositivo eh global
+int dev_id = ID_HOLD;
 
 void usage(int argc, char **argv) {
 	printf("usage: %s <server IP> <server port>\n", argv[0]);
@@ -26,9 +30,17 @@ struct server_data{
 };
 
 void process_command(char *str_in, char *str_out){
-	printf("comando recebido> %s\n", str_in);
-	strcpy(str_out, str_in); //retorna o comando que foi recebido
+	char buf[BUFSZ];
+	memset(buf, 0, BUFSZ);
+	if(!strcmp(str_in, "close connection\n")){
 
+		char *str_id = malloc(STR_MIN);
+        sprintf(str_id, "%02d", dev_id); //parse int->string
+		strcpy(buf, "REQ_DEL ");
+		strcat(buf, str_id);
+		strcpy(str_out, buf); //retorna o comando que foi recebido
+	}
+	
 }
 
 void *get_command(void *data){
@@ -54,7 +66,7 @@ void *get_command(void *data){
 // argv[2] = porta
 int main(int argc, char **argv) {
 	// ----- ATRIBUTOS DE DISPOSITIVO -----//
-	int id = ID_HOLD;
+	
 	//int dispositivos[MAX_DISPOSITIVOS];
 	
 	if (argc < 3) {
@@ -101,6 +113,7 @@ int main(int argc, char **argv) {
 	send_data->server_sock = s;
 	send_data->server_addr = addr;
 	send_data->server_addrlen = addr_len;
+	//send_data->aux_id = id;
 	if(0 != pthread_create(&thread_comando, NULL, get_command, send_data)){
 		logexit("erro ao fazer thread");
 	}
@@ -123,10 +136,10 @@ int main(int argc, char **argv) {
 		switch (msg_type){
 			case BROAD_ADD:
 				token = strtok(NULL, " "); //token = dev_id
-            	if(id == ID_HOLD){
+            	if(dev_id == ID_HOLD){
 					//se o id nao tiver sido inicializado
-					id = atoi(token);
-					printf("New ID: %s\n", token);
+					dev_id = atoi(token);
+					printf("New ID: %02d\n", dev_id);
 				} 
 				else{
 					//se o id ja tiver sido inicializado
