@@ -72,7 +72,7 @@ int server_sockaddr_init(const char *portstr,
 
 }
 
-enum MSG_TYPE {REQ_ID = 1, REQ_DEL, BROAD_ADD, BROAD_DEL, LIST_DEV, ERROR, OK};
+enum MSG_TYPE {REQ_ID = 1, REQ_DEL, BROAD_ADD, BROAD_DEL, LIST_DEV, ERROR, REQ_DEV, REQ_INFO, RES_INFO, RES_DEV};
 unsigned parse_msg_type(const char *msg_type_in){
     if(!strcmp(msg_type_in, "REQ_ID"))
         return REQ_ID; 
@@ -85,9 +85,15 @@ unsigned parse_msg_type(const char *msg_type_in){
     else if(!strcmp(msg_type_in, "LIST_DEV"))
         return LIST_DEV; 
     else if(!strcmp(msg_type_in, "ERROR"))
-        return ERROR; 
-    else if(!strcmp(msg_type_in, "OK"))
-        return OK; 
+        return ERROR;
+    else if(!strcmp(msg_type_in, "REQ_DEV"))
+        return REQ_DEV;
+    else if(!strcmp(msg_type_in, "REQ_INFO"))
+        return REQ_INFO;
+    else if(!strcmp(msg_type_in, "RES_INFO"))
+        return RES_INFO;
+    else if(!strcmp(msg_type_in, "RES_DEV"))
+        return RES_DEV;
     else 
         return 0;
 }

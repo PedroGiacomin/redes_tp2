@@ -62,8 +62,10 @@ void process_command(char *str_in, char *str_out){
 		
 		//Constroi mensagem de REQ_DEV
 		char *str_id = malloc(STR_MIN);
-        sprintf(str_id, "%02d", req_id); //parse int->string
 		strcpy(buf, "REQ_DEV ");
+        sprintf(str_id, "%02d", req_id); //parse int->string
+		strcat(buf, str_id);
+		sprintf(str_id, " %02d", dev_id); //parse int->string
 		strcat(buf, str_id);
 		strcpy(str_out, buf); //retorna o comando que foi recebido
 	}
@@ -217,6 +219,14 @@ int main(int argc, char **argv) {
 						//Fecha o socket
 						close(s);
 						exit(EXIT_SUCCESS);
+						break;
+					
+					case 3:
+						printf("Source device not found\n");
+						break;
+					
+					case 4:
+						printf("Target device not found\n");
 						break;
 				
 					default:

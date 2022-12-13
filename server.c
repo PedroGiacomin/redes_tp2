@@ -209,6 +209,42 @@ int main(int argc, char **argv) {
                 num_disp--;
                 break;
 
+            case REQ_DEV:
+                token = strtok(NULL, " "); //token = dev_id a ser consultado
+                int dest_id = atoi(token);
+                token = strtok(NULL, " ");
+                int src_id = atoi(token);
+
+                printf("dest> %d, src> %d\n", dest_id, src_id);
+                //Checa se existe ERROR 03
+                if(dispositivos[src_id] == NULL){
+                    memset(buf, 0, BUFSZ);
+                    build_error_msg(buf, 3);
+                    int count = sendto(s, buf, strlen(buf), 0, client_addr, client_addrlen);
+                    if (count != strlen(buf)) {
+                        logexit("erro ao enviar mensagem de volta com sendto");
+                    }
+                    printf("Device %02d not found\n", src_id);
+                    break;
+                }
+
+                //Checa se existe ERROR 04
+                if(dispositivos[dest_id] == NULL){
+                    memset(buf, 0, BUFSZ);
+                    build_error_msg(buf, 4);
+                    int count = sendto(s, buf, strlen(buf), 0, client_addr, client_addrlen);
+                    if (count != strlen(buf)) {
+                        logexit("erro ao enviar mensagem de volta com sendto");
+                    }
+                    printf("Device %02d not found\n", dest_id);
+                    break;
+                }
+
+
+                
+                break;
+
+
             default:
                 break;
         }

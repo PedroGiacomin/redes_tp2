@@ -16,5 +16,5 @@ int server_sockaddr_init(const char *portstr,
                          struct sockaddr_storage *storage);
 
 // --- TRATAMENTO DE MENSAGENS --- //
-enum MSG_TYPE {REQ_ID = 1, REQ_DEL, BROAD_ADD, BROAD_DEL, LIST_DEV, ERROR, OK};
+enum MSG_TYPE {REQ_ID = 1, REQ_DEL, BROAD_ADD, BROAD_DEL, LIST_DEV, ERROR, REQ_DEV, REQ_INFO, RES_INFO, RES_DEV};
 unsigned parse_msg_type(const char *msg_type_in);
