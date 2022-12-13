@@ -138,7 +138,7 @@ int main(int argc, char **argv) {
                     num_disp++;
                 }
                 
-                //Checa se todas as posicoes estao livres
+                //Checa se existe ERROR 01 e envia msg se sim
                 if(num_disp == MAX_DISPOSITIVOS){
                     memset(buf, 0, BUFSZ);
                     build_error_msg(buf, 1);
@@ -182,6 +182,17 @@ int main(int argc, char **argv) {
             case REQ_DEL:
                 token = strtok(NULL, " "); //token = dev_id a ser deletado
                 disp_id = atoi(token);
+
+                //Checa se existe ERROR 02
+                if(dispositivos[disp_id] == NULL){
+                    memset(buf, 0, BUFSZ);
+                    build_error_msg(buf, 2);
+                    int count = sendto(s, buf, strlen(buf), 0, client_addr, client_addrlen);
+                    if (count != strlen(buf)) {
+                        logexit("erro ao enviar mensagem de volta com sendto");
+                    }
+                    break;
+                }
                 
                 //Manda mensagem BROAD_DEL <id> para todos os clientes cadastrados (!= NULL), por meio da funcao brodcast()
                 memset(buf, 0, BUFSZ);

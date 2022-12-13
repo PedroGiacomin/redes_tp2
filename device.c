@@ -196,6 +196,14 @@ int main(int argc, char **argv) {
 						close(s);
 						exit(EXIT_SUCCESS);
 						break;
+
+					case 2:
+						printf("Device not found\n");
+						
+						//Fecha o socket
+						close(s);
+						exit(EXIT_SUCCESS);
+						break;
 				
 					default:
 						break;
