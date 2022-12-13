@@ -168,6 +168,7 @@ int main(int argc, char **argv) {
 					dev_id = ID_HOLD;
 				}
 				else{
+					dispositivos_id[del_id] = ID_HOLD;
 					printf("Device %s removed\n", token);
 				}
 				break;
