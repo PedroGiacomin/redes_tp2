@@ -34,6 +34,7 @@ void process_command(char *str_in, char *str_out){
 	memset(buf, 0, BUFSZ);
 	if(!strcmp(str_in, "close connection\n")){
 
+		dev_id = ID_HOLD; //'exclui' seu id
 		char *str_id = malloc(STR_MIN);
         sprintf(str_id, "%02d", dev_id); //parse int->string
 		strcpy(buf, "REQ_DEL ");

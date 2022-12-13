@@ -119,22 +119,30 @@ int main(int argc, char **argv) {
                 addrtostr(dispositivos[disp_id], disp_addrstr, BUFSZ);
                 printf("cadastrado %s\n", disp_addrstr); 
 
-                //Manda mensagem RES_ID <id> para todos os clientes cadastrados (!= NULL), por meio da funcao brodcast()
+                //Manda mensagem BROAD_ADD <id> para todos os clientes cadastrados (!= NULL), por meio da funcao brodcast()
                 memset(buf, 0, BUFSZ);
                 char *str_id = malloc(STR_MIN);
                 sprintf(str_id, "%02d", disp_id); //parse int->string
                 strcpy(buf, "BROAD_ADD ");
                 strcat(buf, str_id);
 
-                //faz o broadcast da mensagem de BROAD_ADD para todos os dispositivos conectados
                 broadcast(dispositivos, s, buf);
+
                 break;
             
             case REQ_DEL:
                 token = strtok(NULL, " "); //token = dev_id a ser deletado
                 disp_id = atoi(token);
                 dispositivos[disp_id] = NULL;  //tira o registro do dispositivo do vetor dispositivos[]
-
+                
+                //Manda mensagem BROAD_DEL <id> para todos os clientes cadastrados (!= NULL), por meio da funcao brodcast()
+                memset(buf, 0, BUFSZ);
+                str_id = malloc(STR_MIN);
+                sprintf(str_id, "%02d", disp_id); //parse int->string
+                strcpy(buf, "BROAD_DEL ");
+                strcat(buf, str_id);
+                
+                broadcast(dispositivos, s, buf);
 
                 break;
 
