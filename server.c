@@ -65,8 +65,6 @@ int main(int argc, char **argv) {
         dispositivos[i] = NULL;
     }
 
-  
-
     // ----- TROCA DE MENSAGENS -----//
     while (1) {
         //Define socket do cliente
@@ -132,7 +130,7 @@ int main(int argc, char **argv) {
             }   
         }
 
-        //PLUG RECV MSG - so imprime a mensagem recebida    
+        // PLUG RECV MSG - so imprime a mensagem recebida    
         // Nao e necessario estabelecer um socket para o cliente, passa-se o endereco direto que esta salvo em client_addr
         // Envia mensagem de volta para o cliente a partir de seu endereco client_addr
         // count = sendto(s, buf, strlen(buf), 0, client_addr, client_addrlen);

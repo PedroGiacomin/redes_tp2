@@ -9,15 +9,27 @@
 #include <sys/socket.h>
 #include <arpa/inet.h>
 
+#define BUFSZ 1024
+#define ID_HOLD 9999
+#define MAX_DISPOSITIVOS 3
+
 void usage(int argc, char **argv) {
 	printf("usage: %s <server IP> <server port>\n", argv[0]);
 	printf("example: %s 127.0.0.1 51511\n", argv[0]);
 	exit(EXIT_FAILURE);
 }
 
-#define BUFSZ 1024
-#define ID_HOLD 9999
-#define MAX_DISPOSITIVOS 3
+void process_command(char *str_in){
+	printf("comando recebido> %s\n", str_in);
+}
+
+void *get_command(void *aux_in){
+	char comando[BUFSZ];
+	while(fgets(comando, BUFSZ, stdin)){
+		process_command(comando);
+	}
+	return NULL;
+}
 
 // argv[1] = IP do servidor
 // argv[2] = porta
@@ -64,6 +76,13 @@ int main(int argc, char **argv) {
 	ssize_t count = sendto(s, buf, strlen(buf), 0, addr, addr_len);
 	if (count != strlen(buf)) {
 		logexit("erro ao enviar mensagem com sendto");
+	}
+
+	//Cria thread para pegar comando do teclado
+	pthread_t thread_comando;
+	void *aux_in = malloc(0);
+	if(0 != pthread_create(&thread_comando, NULL, get_command, aux_in)){
+		logexit("erro ao fazer thread");
 	}
 
 	// Entra em loop para enviar/receber mensagens
