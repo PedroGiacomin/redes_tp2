@@ -34,7 +34,6 @@ void process_command(char *str_in, char *str_out){
 	memset(buf, 0, BUFSZ);
 	if(!strcmp(str_in, "close connection\n")){
 
-		dev_id = ID_HOLD; //'exclui' seu id
 		char *str_id = malloc(STR_MIN);
         sprintf(str_id, "%02d", dev_id); //parse int->string
 		strcpy(buf, "REQ_DEL ");
@@ -147,6 +146,17 @@ int main(int argc, char **argv) {
 				}
 				break;
 			
+			case BROAD_DEL:
+				token = strtok(NULL, " "); //token = dev_id a ser deletado
+				int del_id = atoi(token);
+				if(dev_id == del_id){
+					printf("Successful removal\n");
+					dev_id = ID_HOLD;
+				}
+				else{
+					printf("Device %s removed\n", token);
+				}
+
 			default:
 				break;
 		}

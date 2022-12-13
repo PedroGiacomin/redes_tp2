@@ -133,7 +133,6 @@ int main(int argc, char **argv) {
             case REQ_DEL:
                 token = strtok(NULL, " "); //token = dev_id a ser deletado
                 disp_id = atoi(token);
-                dispositivos[disp_id] = NULL;  //tira o registro do dispositivo do vetor dispositivos[]
                 
                 //Manda mensagem BROAD_DEL <id> para todos os clientes cadastrados (!= NULL), por meio da funcao brodcast()
                 memset(buf, 0, BUFSZ);
@@ -144,6 +143,7 @@ int main(int argc, char **argv) {
                 
                 broadcast(dispositivos, s, buf);
 
+                dispositivos[disp_id] = NULL;  //tira o registro do dispositivo do vetor dispositivos[]
                 break;
 
             default:
