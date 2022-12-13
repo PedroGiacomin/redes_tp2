@@ -18,6 +18,18 @@ void usage(int argc, char **argv) {
     exit(EXIT_FAILURE);
 }
 
+void broadcast(struct sockaddr *dispositivos[], int s, char *msg){
+    for(int i = 0; i < MAX_DISPOSITIVOS; i++){
+        if(dispositivos[i] != NULL){
+            socklen_t disp_len = sizeof(struct sockaddr_storage);
+            int count = sendto(s, msg, strlen(msg), 0, dispositivos[i], disp_len);
+            if (count != strlen(msg)) {
+                logexit("erro ao enviar mensagem de volta com sendto");
+            }
+        }
+    } 
+}
+
 // argv[1] = port
 int main(int argc, char **argv) {
     if (argc < 2) {
@@ -116,18 +128,12 @@ int main(int argc, char **argv) {
             memset(buf, 0, BUFSZ);
             char *str_id = malloc(STR_MIN);
             sprintf(str_id, "%02d", disp_id); //parse int->string
-            strcpy(buf, "RES_ID ");
+            strcpy(buf, "BROAD_ADD ");
             strcat(buf, str_id);
 
-            for(int i = 0; i < MAX_DISPOSITIVOS; i++){
-                if(dispositivos[i] != NULL){
-                    socklen_t disp_len = sizeof(struct sockaddr_storage);
-                    count = sendto(s, buf, strlen(buf), 0, dispositivos[i], disp_len);
-                    if (count != strlen(buf)) {
-                        logexit("erro ao enviar mensagem de volta com sendto");
-                    }
-                }
-            }   
+            //faz o broadcast da mensagem de BROAD_ADD para todos os dispositivos conectados
+            broadcast(dispositivos, s, buf);
+       
         }
 
         // PLUG RECV MSG - so imprime a mensagem recebida    
