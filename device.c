@@ -154,8 +154,7 @@ int main(int argc, char **argv) {
             logexit("erro ao receber mensagem do cliente");
         }
 		
-		// printf("recebida> ");
-		// puts(buf);
+		printf("recebida> %s\n", buf);
 
 		char *token = strtok(buf, " "); //token = type
         unsigned msg_type = parse_msg_type(token); //salva o tipo da mensagem
@@ -198,6 +197,34 @@ int main(int argc, char **argv) {
 					//token = dev_id
 					int dev_id = atoi(token);
 					dispositivos_id[dev_id] = dev_id; //na posicao dev_id, o dispositivo de id dev_id eh instalado
+				}
+				break;
+
+			case REQ_INFO:
+				//recebe REQ_INFO <id_src> e deve enviar informacao ao servidor
+				
+				token = strtok(NULL, " "); //token = id_src
+				int src_id = atoi(token);
+				float random = 99; 
+				
+				//envia de volta RES_INFO <id_src> <id_dest> <value>
+				memset(buf, 0, BUFSZ);
+				strcpy(buf, "RES_INFO");
+
+				char *str_id = malloc(STR_MIN);
+
+				sprintf(str_id, " %02d", src_id); 
+				strcat(buf, str_id); //id_src;
+				
+				sprintf(str_id, " %02d", dev_id); 
+				strcat(buf, str_id); //id_dest
+				
+				sprintf(str_id, " %.2f", random); 
+				strcat(buf, str_id); //value
+				
+				count = sendto(s, buf, strlen(buf), 0, addr, addr_len);
+				if (count != strlen(buf)) {
+					logexit("erro ao enviar mensagem com sendto");
 				}
 				break;
 			

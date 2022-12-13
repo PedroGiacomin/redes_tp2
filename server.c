@@ -215,7 +215,6 @@ int main(int argc, char **argv) {
                 token = strtok(NULL, " ");
                 int src_id = atoi(token);
 
-                printf("dest> %d, src> %d\n", dest_id, src_id);
                 //Checa se existe ERROR 03
                 if(dispositivos[src_id] == NULL){
                     memset(buf, 0, BUFSZ);
@@ -240,8 +239,17 @@ int main(int argc, char **argv) {
                     break;
                 }
 
+                //Manda mensagem REQ_INFO <dest_id> <src_id> para o cliente requisitado
+                memset(buf, 0, BUFSZ);
+                str_id = malloc(STR_MIN);
+                strcpy(buf, "REQ_INFO ");
+                sprintf(str_id, "%02d", src_id); 
+                strcat(buf, str_id);
 
-                
+                count = sendto(s, buf, strlen(buf), 0, dispositivos[dest_id], client_addrlen);
+                if (count != strlen(buf)) {
+                    logexit("erro ao enviar mensagem de volta com sendto");
+                }
                 break;
 
 
