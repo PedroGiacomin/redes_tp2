@@ -66,7 +66,7 @@ int main(int argc, char **argv) {
 
     char addrstr[BUFSZ];
     addrtostr(addr, addrstr, BUFSZ);
-    printf("bound to %s, waiting connections\n", addrstr);
+    //printf("bound to %s, waiting connections\n", addrstr);
 
     // ----- LOGICA DE IDS -----//
     //Todos os dispositivo que se conectam tem seu endereco (no formato sockaddr*) salvo num vetor
@@ -94,11 +94,8 @@ int main(int argc, char **argv) {
         if(count < 0){
             logexit("erro ao receber mensagem do cliente");
         }
-        char client_addrstr[BUFSZ];
-        addrtostr(client_addr, client_addrstr, BUFSZ);
-        
-        //PLUG RECV MSG - so imprime a mensagem recebida
-        printf("recebida de %s> %s\n", client_addrstr, buf); 
+
+        //Tratamento da mensagem recebida
         char *token = strtok(buf, " "); //token = type
         unsigned msg_type = parse_msg_type(token); //salva o tipo da mensagem
 
@@ -115,10 +112,6 @@ int main(int argc, char **argv) {
                     }
                 }
 
-                char disp_addrstr[BUFSZ];
-                addrtostr(dispositivos[disp_id], disp_addrstr, BUFSZ);
-                printf("cadastrado %s\n", disp_addrstr); 
-
                 //Manda mensagem BROAD_ADD <id> para todos os clientes cadastrados (!= NULL), por meio da funcao brodcast()
                 memset(buf, 0, BUFSZ);
                 char *str_id = malloc(STR_MIN);
@@ -127,6 +120,7 @@ int main(int argc, char **argv) {
                 strcat(buf, str_id);
 
                 broadcast(dispositivos, s, buf);
+                printf("Device %s added\n", str_id);
 
                 //Manda mensagem LIST_DEV <id1> <id2> para o cliente que acabou de ser cadastrado
                 memset(buf, 0, BUFSZ);
@@ -160,6 +154,7 @@ int main(int argc, char **argv) {
                 strcat(buf, str_id);
                 
                 broadcast(dispositivos, s, buf);
+                printf("Device %s removed\n", str_id);
 
                 dispositivos[disp_id] = NULL;  //tira o registro do dispositivo do vetor dispositivos[]
                 break;
@@ -168,10 +163,10 @@ int main(int argc, char **argv) {
                 break;
         }
 
-        printf("Enderecos gravados:\n");
-        for(int i = 0; i < MAX_DISPOSITIVOS; i++){
-            printf("dispositivos[i]: %p\n", dispositivos[i]);
-        }
+        // printf("Enderecos gravados:\n");
+        // for(int i = 0; i < MAX_DISPOSITIVOS; i++){
+        //     printf("dispositivos[i]: %p\n", dispositivos[i]);
+        // }
     }
         
     exit(EXIT_SUCCESS);

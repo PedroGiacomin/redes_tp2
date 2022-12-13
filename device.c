@@ -108,10 +108,6 @@ int main(int argc, char **argv) {
 	socklen_t addr_len = sizeof(storage);
 
 	// ----- TROCA DE MENSAGENS ----- // 
-	char addrstr[BUFSZ];
-	addrtostr(addr, addrstr, BUFSZ);
-	printf("connected to %s\n", addrstr);
-
 	char buf[BUFSZ];
 	memset(buf, 0, BUFSZ);
 
@@ -142,8 +138,8 @@ int main(int argc, char **argv) {
             logexit("erro ao receber mensagem do cliente");
         }
 		
-		printf("recebida> ");
-		puts(buf);
+		// printf("recebida> ");
+		// puts(buf);
 
 		char *token = strtok(buf, " "); //token = type
         unsigned msg_type = parse_msg_type(token); //salva o tipo da mensagem
@@ -169,6 +165,10 @@ int main(int argc, char **argv) {
 				if(dev_id == del_id){
 					printf("Successful removal\n");
 					dev_id = ID_HOLD;
+
+					//Fecha o socket
+					close(s);
+					exit(EXIT_SUCCESS);
 				}
 				else{
 					dispositivos_id[del_id] = ID_HOLD;
@@ -190,11 +190,4 @@ int main(int argc, char **argv) {
 		}
 		
 	}
-	
-	//Fecha o socket
-	close(s);
-
-
-
-	exit(EXIT_SUCCESS);
 }
