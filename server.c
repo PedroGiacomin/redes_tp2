@@ -119,6 +119,7 @@ int main(int argc, char **argv) {
             logexit("erro ao receber mensagem do cliente");
         }
 
+        printf("recebida> %s\n", buf);
         //Tratamento da mensagem recebida
         char *token = strtok(buf, " "); //token = type
         unsigned msg_type = parse_msg_type(token); //salva o tipo da mensagem

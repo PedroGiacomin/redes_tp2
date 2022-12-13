@@ -33,14 +33,15 @@ struct server_data{
 void process_command(char *str_in, char *str_out){
 	char buf[BUFSZ];
 	memset(buf, 0, BUFSZ);
-	if(!strcmp(str_in, "close connection\n")){
+	char *token = strtok(str_in, " ");
+	if(!strcmp(token, "close")){
 		char *str_id = malloc(STR_MIN);
         sprintf(str_id, "%02d", dev_id); //parse int->string
 		strcpy(buf, "REQ_DEL ");
 		strcat(buf, str_id);
-		strcpy(str_out, buf); //retorna o comando que foi recebido
+		strcpy(str_out, buf); //passa a mensagem para fora
 	}
-	else if(!strcmp(str_in, "list device\n")){
+	else if(!strcmp(str_in, "list")){
 		strcpy(buf, "");
 		char *str_id = malloc(STR_MIN);
 
@@ -52,6 +53,19 @@ void process_command(char *str_in, char *str_out){
 			strcpy(str_out, "nao");
 		}
 		printf("%s\n", buf);	
+	}
+	else if(!strcmp(str_in, "request")){
+		token = strtok(NULL, " "); //information
+		token = strtok(NULL, " "); //from
+		token = strtok(NULL, " "); //dev_id
+		int req_id = atoi(token);
+		
+		//Constroi mensagem de REQ_DEV
+		char *str_id = malloc(STR_MIN);
+        sprintf(str_id, "%02d", req_id); //parse int->string
+		strcpy(buf, "REQ_DEV ");
+		strcat(buf, str_id);
+		strcpy(str_out, buf); //retorna o comando que foi recebido
 	}
 }
 
