@@ -72,12 +72,16 @@ int server_sockaddr_init(const char *portstr,
 
 }
 
-enum MSG_TYPE {REQ_ID = 1, BROAD_ADD};
+enum MSG_TYPE {REQ_ID = 1, REQ_DEL, BROAD_ADD, BROAD_DEL};
 unsigned parse_msg_type(const char *msg_type_in){
     if(!strcmp(msg_type_in, "REQ_ID"))
         return REQ_ID; 
+    else if(!strcmp(msg_type_in, "REQ_DEL"))
+        return REQ_DEL; 
     else if(!strcmp(msg_type_in, "BROAD_ADD"))
-    return BROAD_ADD; 
+        return BROAD_ADD; 
+    else if(!strcmp(msg_type_in, "BROAD_DEL"))
+        return BROAD_DEL; 
     else 
         return 0;
 }

@@ -102,46 +102,50 @@ int main(int argc, char **argv) {
         char *token = strtok(buf, " "); //token = type
         unsigned msg_type = parse_msg_type(token); //salva o tipo da mensagem
 
-        if(msg_type == REQ_ID){
-            //Encontra a primeira posicao vazia no vetor de dispositivos e atribui o dispositivo que acabou de chegar a ela
-            int disp_id;
-            for(int i = 0; i < MAX_DISPOSITIVOS; i++){
-                if(dispositivos[i] == NULL){
-                    dispositivos[i] = malloc(sizeof(struct sockaddr*));
-                    *dispositivos[i] = *client_addr;
-                    disp_id = i;
-                    break;
+        int disp_id;
+        switch (msg_type){
+            case REQ_ID:
+                //Encontra a primeira posicao vazia no vetor de dispositivos e atribui o dispositivo que acabou de chegar a ela
+                for(int i = 0; i < MAX_DISPOSITIVOS; i++){
+                    if(dispositivos[i] == NULL){
+                        dispositivos[i] = malloc(sizeof(struct sockaddr*));
+                        *dispositivos[i] = *client_addr;
+                        disp_id = i;
+                        break;
+                    }
                 }
-            }
 
-            char disp_addrstr[BUFSZ];
-            addrtostr(dispositivos[disp_id], disp_addrstr, BUFSZ);
-            printf("cadastrado %s\n", disp_addrstr); 
+                char disp_addrstr[BUFSZ];
+                addrtostr(dispositivos[disp_id], disp_addrstr, BUFSZ);
+                printf("cadastrado %s\n", disp_addrstr); 
 
-            printf("Enderecos gravados:\n");
-            for(int i = 0; i < MAX_DISPOSITIVOS; i++){
-                printf("dispositivos[i]: %p\n", dispositivos[i]);
-            }
+                //Manda mensagem RES_ID <id> para todos os clientes cadastrados (!= NULL), por meio da funcao brodcast()
+                memset(buf, 0, BUFSZ);
+                char *str_id = malloc(STR_MIN);
+                sprintf(str_id, "%02d", disp_id); //parse int->string
+                strcpy(buf, "BROAD_ADD ");
+                strcat(buf, str_id);
 
-            //Manda mensagem RES_ID <id> para todos os clientes cadastrados (!= NULL)
-            memset(buf, 0, BUFSZ);
-            char *str_id = malloc(STR_MIN);
-            sprintf(str_id, "%02d", disp_id); //parse int->string
-            strcpy(buf, "BROAD_ADD ");
-            strcat(buf, str_id);
+                //faz o broadcast da mensagem de BROAD_ADD para todos os dispositivos conectados
+                broadcast(dispositivos, s, buf);
+                break;
+            
+            case REQ_DEL:
+                token = strtok(NULL, " "); //token = dev_id a ser deletado
+                disp_id = atoi(token);
+                dispositivos[disp_id] = NULL;  //tira o registro do dispositivo do vetor dispositivos[]
 
-            //faz o broadcast da mensagem de BROAD_ADD para todos os dispositivos conectados
-            broadcast(dispositivos, s, buf);
-       
+
+                break;
+
+            default:
+                break;
         }
 
-        // PLUG RECV MSG - so imprime a mensagem recebida    
-        // Nao e necessario estabelecer um socket para o cliente, passa-se o endereco direto que esta salvo em client_addr
-        // Envia mensagem de volta para o cliente a partir de seu endereco client_addr
-        // count = sendto(s, buf, strlen(buf), 0, client_addr, client_addrlen);
-        // if (count != strlen(buf)) {
-        // logexit("erro ao enviar mensagem de volta com sendto");
-        // }
+        printf("Enderecos gravados:\n");
+        for(int i = 0; i < MAX_DISPOSITIVOS; i++){
+            printf("dispositivos[i]: %p\n", dispositivos[i]);
+        }
     }
         
     exit(EXIT_SUCCESS);

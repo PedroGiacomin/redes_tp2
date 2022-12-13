@@ -40,7 +40,6 @@ void process_command(char *str_in, char *str_out){
 		strcat(buf, str_id);
 		strcpy(str_out, buf); //retorna o comando que foi recebido
 	}
-	
 }
 
 void *get_command(void *data){
