@@ -49,6 +49,7 @@ void process_command(char *str_in, char *str_out){
         		sprintf(str_id, "%02d ", i); //parse int->string
 				strcat(buf, str_id);
 			}
+			strcpy(str_out, "nao");
 		}
 		printf("%s\n", buf);	
 	}
@@ -65,9 +66,11 @@ void *get_command(void *data){
 		process_command(comando, (char *)msg_out);
 
 		//Envia msg_out ao servidor
-		ssize_t count = sendto(dados->server_sock, msg_out, strlen(msg_out), 0, dados->server_addr, dados->server_addrlen);
-		if (count != strlen(msg_out)) {
-			logexit("erro ao enviar mensagem com sendto");
+		if(strcmp(msg_out, "nao")){
+			ssize_t count = sendto(dados->server_sock, msg_out, strlen(msg_out), 0, dados->server_addr, dados->server_addrlen);
+			if (count != strlen(msg_out)) {
+				logexit("erro ao enviar mensagem com sendto");
+			}
 		}
 	}
 	return NULL;
