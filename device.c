@@ -54,7 +54,7 @@ void *get_command(void *data){
 // argv[2] = porta
 int main(int argc, char **argv) {
 	// ----- ATRIBUTOS DE DISPOSITIVO -----//
-	//int id = ID_HOLD;
+	int id = ID_HOLD;
 	//int dispositivos[MAX_DISPOSITIVOS];
 	
 	if (argc < 3) {
@@ -87,7 +87,7 @@ int main(int argc, char **argv) {
 
 	char buf[BUFSZ];
 	memset(buf, 0, BUFSZ);
-	
+
 	//Mandar REQ_ID ao inicializar device
 	strcpy(buf, "REQ_ID");
 	ssize_t count = sendto(s, buf, strlen(buf), 0, addr, addr_len);
@@ -113,8 +113,31 @@ int main(int argc, char **argv) {
 		if(count < 0){
             logexit("erro ao receber mensagem do cliente");
         }
+		
 		printf("recebida> ");
 		puts(buf);
+
+		char *token = strtok(buf, " "); //token = type
+        unsigned msg_type = parse_msg_type(token); //salva o tipo da mensagem
+
+		switch (msg_type){
+			case BROAD_ADD:
+				token = strtok(NULL, " "); //token = dev_id
+            	if(id == ID_HOLD){
+					//se o id nao tiver sido inicializado
+					id = atoi(token);
+					printf("New ID: %s\n", token);
+				} 
+				else{
+					//se o id ja tiver sido inicializado
+					printf("Device %s added\n", token);
+				}
+				break;
+			
+			default:
+				break;
+		}
+		
 	}
 	
 	//Fecha o socket
