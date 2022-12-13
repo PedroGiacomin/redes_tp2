@@ -128,6 +128,24 @@ int main(int argc, char **argv) {
 
                 broadcast(dispositivos, s, buf);
 
+                //Manda mensagem LIST_DEV <id1> <id2> para o cliente que acabou de ser cadastrado
+                memset(buf, 0, BUFSZ);
+                strcpy(buf, "LIST_DEV");
+
+                str_id = malloc(STR_MIN);
+                for(int i = 0; i < MAX_DISPOSITIVOS; i++){
+                    //verifica quais dispositivos estao instalados e adiciona seu id na msg
+                    if(dispositivos[i] != NULL){
+                        sprintf(str_id, " %02d", i); //parse int->string
+                        strcat(buf, str_id);
+                    }
+                }
+
+                int count = sendto(s, buf, strlen(buf), 0, client_addr, client_addrlen);
+                if (count != strlen(buf)) {
+                    logexit("erro ao enviar mensagem de volta com sendto");
+                }
+
                 break;
             
             case REQ_DEL:
