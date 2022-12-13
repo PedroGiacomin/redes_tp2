@@ -19,14 +19,33 @@ void usage(int argc, char **argv) {
 	exit(EXIT_FAILURE);
 }
 
-void process_command(char *str_in){
+struct server_data{
+	struct sockaddr *server_addr;
+	int server_sock;
+	socklen_t server_addrlen;
+};
+
+void process_command(char *str_in, char *str_out){
 	printf("comando recebido> %s\n", str_in);
+	strcpy(str_out, str_in); //retorna o comando que foi recebido
+
 }
 
-void *get_command(void *aux_in){
+void *get_command(void *data){
+	struct server_data *dados = (struct server_data*) data;
+	
 	char comando[BUFSZ];
+	char msg_out[BUFSZ];
+
 	while(fgets(comando, BUFSZ, stdin)){
-		process_command(comando);
+		//Processa comando e salva mensagem resultante em msg_out
+		process_command(comando, (char *)msg_out);
+
+		//Envia msg_out ao servidor
+		ssize_t count = sendto(dados->server_sock, msg_out, strlen(msg_out), 0, dados->server_addr, dados->server_addrlen);
+		if (count != strlen(msg_out)) {
+			logexit("erro ao enviar mensagem com sendto");
+		}
 	}
 	return NULL;
 }
@@ -71,21 +90,24 @@ int main(int argc, char **argv) {
 	memset(buf, 0, BUFSZ);
 	// fgets(buf, BUFSZ-1, stdin);
 
-	//Mandar REQ_ID
+	//Mandar REQ_ID ao inicializar device
 	strcpy(buf, "REQ_ID");
 	ssize_t count = sendto(s, buf, strlen(buf), 0, addr, addr_len);
 	if (count != strlen(buf)) {
 		logexit("erro ao enviar mensagem com sendto");
 	}
 
-	//Cria thread para pegar comando do teclado
+	//Cria thread com loop para pegar comando do teclado e enviar mensagem resultante ao servidor 
 	pthread_t thread_comando;
-	void *aux_in = malloc(0);
-	if(0 != pthread_create(&thread_comando, NULL, get_command, aux_in)){
+	struct server_data *send_data = malloc(sizeof(send_data)); //passa socket do servidor e dados do endereco
+	send_data->server_sock = s;
+	send_data->server_addr = addr;
+	send_data->server_addrlen = addr_len;
+	if(0 != pthread_create(&thread_comando, NULL, get_command, send_data)){
 		logexit("erro ao fazer thread");
 	}
 
-	// Entra em loop para enviar/receber mensagens
+	// Entra em loop para receber mensagens
 	while (1){
 		// PLUG RECV MSG - recebe mensagem do servidor e guarda em buf
 		memset(buf, 0, BUFSZ);
