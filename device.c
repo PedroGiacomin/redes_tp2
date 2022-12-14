@@ -238,7 +238,7 @@ int main(int argc, char **argv) {
                 token = strtok(NULL, " ");
                 float value = atof(token);
 
-				printf("Value from %02d : %.2f\n", dest_id, value);
+				printf("Value from %02d: %.2f\n", dest_id, value);
 
 				break;
 			
