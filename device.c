@@ -207,17 +207,17 @@ int main(int argc, char **argv) {
 				int src_id = atoi(token);
 				float random = 99; 
 				
-				//envia de volta RES_INFO <id_src> <id_dest> <value>
+				//envia de volta RES_INFO <id_dest> <id_src> <value>
 				memset(buf, 0, BUFSZ);
 				strcpy(buf, "RES_INFO");
 
 				char *str_id = malloc(STR_MIN);
-
-				sprintf(str_id, " %02d", src_id); 
-				strcat(buf, str_id); //id_src;
 				
 				sprintf(str_id, " %02d", dev_id); 
 				strcat(buf, str_id); //id_dest
+
+				sprintf(str_id, " %02d", src_id); 
+				strcat(buf, str_id); //id_src;
 				
 				sprintf(str_id, " %.2f", random); 
 				strcat(buf, str_id); //value

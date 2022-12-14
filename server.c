@@ -251,6 +251,55 @@ int main(int argc, char **argv) {
                     logexit("erro ao enviar mensagem de volta com sendto");
                 }
                 break;
+            
+            case RES_INFO:
+                //Recebe uma RES_INFO <dest_id> <src_id> <value>
+                //NO caso o dest_id continua sendo o do dev que envia a informacao
+                token = strtok(NULL, " "); 
+                dest_id = atoi(token);
+                token = strtok(NULL, " ");
+                src_id = atoi(token);
+                token = strtok(NULL, " ");
+                float value = (float) atol(token);
+
+                //Checa se existe ERROR 03
+                if(dispositivos[dest_id] == NULL){
+                    memset(buf, 0, BUFSZ);
+                    build_error_msg(buf, 3);
+                    int count = sendto(s, buf, strlen(buf), 0, client_addr, client_addrlen);
+                    if (count != strlen(buf)) {
+                        logexit("erro ao enviar mensagem de volta com sendto");
+                    }
+                    printf("Device %02d not found\n", dest_id);
+                    break;
+                }
+
+                //Checa se existe ERROR 04
+                if(dispositivos[src_id] == NULL){
+                    memset(buf, 0, BUFSZ);
+                    build_error_msg(buf, 4);
+                    int count = sendto(s, buf, strlen(buf), 0, client_addr, client_addrlen);
+                    if (count != strlen(buf)) {
+                        logexit("erro ao enviar mensagem de volta com sendto");
+                    }
+                    printf("Device %02d not found\n", src_id);
+                    break;
+                }
+
+                //Manda mensagem RES_DEV <dest_id> <value> para o cliente requisitado
+                memset(buf, 0, BUFSZ);
+                str_id = malloc(STR_MIN);
+                strcpy(buf, "RES_DEV");
+                sprintf(str_id, " %02d", dest_id); 
+                strcat(buf, str_id);
+                sprintf(str_id, " %.2f", value); 
+                strcat(buf, str_id);
+
+                count = sendto(s, buf, strlen(buf), 0, dispositivos[src_id], client_addrlen);
+                if (count != strlen(buf)) {
+                    logexit("erro ao enviar mensagem de volta com sendto");
+                }
+                break;
 
 
             default:
