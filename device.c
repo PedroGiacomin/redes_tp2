@@ -13,6 +13,7 @@
 #define BUFSZ 1024
 #define ID_HOLD 9999
 #define STR_MIN 8
+#define MAX_RAND 10
 
 // ----- ATRIBUTOS DE DISPOSITIVO (globais) -----//
 int dev_id = ID_HOLD;
@@ -154,8 +155,6 @@ int main(int argc, char **argv) {
             logexit("erro ao receber mensagem do cliente");
         }
 		
-		printf("recebida> %s\n", buf);
-
 		char *token = strtok(buf, " "); //token = type
         unsigned msg_type = parse_msg_type(token); //salva o tipo da mensagem
 
@@ -202,10 +201,12 @@ int main(int argc, char **argv) {
 
 			case REQ_INFO:
 				//recebe REQ_INFO <id_src> e deve enviar informacao ao servidor
-				
+				printf("requested information\n");
+
 				token = strtok(NULL, " "); //token = id_src
 				int src_id = atoi(token);
-				float random = 99; 
+				srand(time(NULL));
+				float random = ((float)rand()/(float)RAND_MAX) * 10.0; ; //gera um valor aleatorio com duas casas entre 0 e 10 
 				
 				//envia de volta RES_INFO <id_dest> <id_src> <value>
 				memset(buf, 0, BUFSZ);
@@ -226,6 +227,19 @@ int main(int argc, char **argv) {
 				if (count != strlen(buf)) {
 					logexit("erro ao enviar mensagem com sendto");
 				}
+
+				
+				break;
+			
+			case RES_DEV:
+				//recebe RES_DEV <dest_id> <value> e deve imprimir na tela
+				token = strtok(NULL, " "); 
+                int dest_id = atoi(token);
+                token = strtok(NULL, " ");
+                float value = atof(token);
+
+				printf("Value from %02d : %.2f\n", dest_id, value);
+
 				break;
 			
 			case ERROR:

@@ -119,7 +119,6 @@ int main(int argc, char **argv) {
             logexit("erro ao receber mensagem do cliente");
         }
 
-        printf("recebida> %s\n", buf);
         //Tratamento da mensagem recebida
         char *token = strtok(buf, " "); //token = type
         unsigned msg_type = parse_msg_type(token); //salva o tipo da mensagem
@@ -260,7 +259,7 @@ int main(int argc, char **argv) {
                 token = strtok(NULL, " ");
                 src_id = atoi(token);
                 token = strtok(NULL, " ");
-                float value = (float) atol(token);
+                float value = atof(token);
 
                 //Checa se existe ERROR 03
                 if(dispositivos[dest_id] == NULL){
