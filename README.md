@@ -1,0 +1,1 @@
+O trabalho prático consiste em uma aplicação cliente-servidor em linguagem C usando a biblioteca POSIX. A aplicação é um sistema de controle de dispositivos sensores em uma casa inteligente, e deve permitir que múltiplos dispositivos se conectem ao servidor simultaneamente e troquem informações entre si por intermédio dele. 
